@@ -1,38 +1,62 @@
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import ru.praktikumServices.qaScooter.OrderPage;
 
 import static org.hamcrest.CoreMatchers.containsString;
-
+@RunWith(Parameterized.class)
 public class CheckOrderCreation extends BaseUISettings {
 
+    private final String name;
+    private final String surname;
+    private final String address;
+    private final String phoneNumber;
+    private final String expectedResult;
+
+    public CheckOrderCreation(String name, String surname, String address, String phoneNumber, String expectedResult) {
+        this.name = name;
+        this.surname = surname;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.expectedResult = expectedResult;
+    }
+
+    @Parameterized.Parameters
+    public static Object[][] getOrderData() {
+        return new Object[][] {
+                { "Алексей", "Петров", "Москва ул. Октябрьская д.15 кв. 16","89675054123","Заказ оформлен" },
+                { "Иван", "Иванов", "Саратов ул. Октябрьская д.15 кв. 16","89675050023","Заказ оформлен" },
+        };
+    }
+
     @Test
-    public void CreateOrderWithoutOptionalParametersExpectedOrderCreated()
+    public void createOrderOnlyMandatoryParametersExpectedOrderCreated()
     {
         mainPage.clickClickCreateOrderButtonInHeader();
         OrderPage orderPage = new OrderPage(driver);
-        orderPage.fillName("Алексей");
-        orderPage.fillSurname("Петров");
-        orderPage.fillAddress("Москва ул. Октябрьская д.15 кв. 16");
+        orderPage.fillName(name);
+        orderPage.fillSurname(surname);
+        orderPage.fillAddress(address);
         orderPage.setStation();
-        orderPage.fillPhoneNumber("89675054123");
+        orderPage.fillPhoneNumber(phoneNumber);
         orderPage.clickNextButton();
         orderPage.pickDateIsTomorrow();
         orderPage.selectRentalPeriod();
         orderPage.clickOrderButton();
         orderPage.confirmOrder();
-        MatcherAssert.assertThat(orderPage.getOrderStatusHeader(), containsString("Заказ оформлен"));
+        MatcherAssert.assertThat(orderPage.getOrderStatusHeader(), containsString(expectedResult));
     }
     @Test
-    public void CreateOrderOnlyMandatoryParametersExpectedOrderCreated1()
+    public void createOrderWithOptionalParametersExpectedOrderCreated()
     {
-        mainPage.clickClickCreateOrderButtonInHeader();
+        mainPage.clickClickCreateOrderButtonInContext();
         OrderPage orderPage = new OrderPage(driver);
-        orderPage.fillName("Иван");
-        orderPage.fillSurname("Иванов");
-        orderPage.fillAddress("Саратов ул. Октябрьская д.15 кв. 16");
+        orderPage.fillName(name);
+        orderPage.fillSurname(surname);
+        orderPage.fillAddress(address);
         orderPage.setStation();
-        orderPage.fillPhoneNumber("89675050023");
+        orderPage.fillPhoneNumber(phoneNumber);
         orderPage.clickNextButton();
         orderPage.pickDateIsTomorrow();
         orderPage.selectRentalPeriod();
@@ -41,30 +65,7 @@ public class CheckOrderCreation extends BaseUISettings {
         orderPage.fillComment("Test");
         orderPage.clickOrderButton();
         orderPage.confirmOrder();
-        MatcherAssert.assertThat(orderPage.getOrderStatusHeader(), containsString("Заказ оформлен"));
+        MatcherAssert.assertThat(orderPage.getOrderStatusHeader(), containsString(expectedResult));
     }
-
-    @Test
-    public void CreateOrderByButtonInContentExpectedOrderCreated()
-    {
-        mainPage.scrollToOrderButtonInContext();
-        mainPage.clickClickCreateOrderButtonInContext();
-        OrderPage orderPage = new OrderPage(driver);
-        orderPage.fillName("Петр");
-        orderPage.fillSurname("Алексеев");
-        orderPage.fillAddress("Псков ул. Октябрьская д.15 кв. 16");
-        orderPage.setStation();
-        orderPage.fillPhoneNumber("89674444123");
-        orderPage.clickNextButton();
-        orderPage.pickDateIsAfterTomorrow();
-        orderPage.selectRentalPeriod();
-        orderPage.clickOrderButton();
-        orderPage.confirmOrder();
-        MatcherAssert.assertThat(orderPage.getOrderStatusHeader(), containsString("Заказ оформлен"));
-
-
-    }
-
-
 
 }
